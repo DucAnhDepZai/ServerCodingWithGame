@@ -1,0 +1,101 @@
+/* style.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+header, footer {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Container spacing */
+.container {
+    margin-top: 60px;
+    margin-bottom: 60px;
+}
+.container_login {
+    margin-top: 120px;
+    margin-bottom: 60px;
+}
+.container_bot0 {
+    margin-top: 200px;
+}
+
+/* Card shadow */
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+/* Primary Button Styling */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Custom header styles */
+.navbar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 80px; /* Adjust header height */
+    line-height: 50px; /* Vertically align content */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Ensure header stays on top */
+}
+
+.navbar-brand img {
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+/* Warning Button Styling */
+.btn-warning {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+}
+
+.btn-warning:hover {
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+/* Dropdown Menu Customization */
+.btn-outline-light.dropdown-toggle {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.dropdown-menu {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+}
+
+/* Responsive Buttons */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Tạo mới Lesson</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Tạo mới Lesson</h1>
+  <form th:action="@{/createLesson}" th:object="${lesson}" method="post" class="needs-validation">
+    <div class="mb-3">
+      <label for="name" class="form-label">Tên bài học</label>
+      <input type="text" id="name" name="name" class="form-control" th:field="*{name}" required>
+    </div>
+    <div class="mb-3">
+      <label for="language" class="form-label">Ngôn ngữ</label>
+      <input type="text" id="language" name="language" class="form-control" th:field="*{language}" required>
+    </div>
+    <div class="mb-3">
+      <label for="init_code" class="form-label">Mã khởi tạo</label>
+      <textarea id="init_code" name="init_code" class="form-control" th:field="*{init_code}" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="guild" class="form-label">Hướng dẫn</label>
+      <textarea id="guild" name="guild" class="form-control" th:field="*{guild}" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="mission" class="form-label">Nhiệm vụ</label>
+      <textarea id="mission" name="mission" class="form-control" th:field="*{mission}" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="order" class="form-label">Thứ tự</label>
+      <input type="number" id="order" name="order" class="form-control" th:field="*{order}" required>
+    </div>
+    <div class="mb-3">
+      <label for="id_course" class="form-label">ID Khóa học</label>
+      <input type="number" id="id_course" name="id_course" class="form-control" th:field="*{id_course}">
+    </div>
+    <div class="mb-3">
+      <label for="id_game_lesson" class="form-label">ID Bài học game</label>
+      <input type="number" id="id_game_lesson" name="id_game_lesson" class="form-control" th:field="*{id_game_lesson}">
+    </div>
+    <button type="submit" class="btn btn-success">Tạo mới</button>
+    <a href="/manageLesson" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
+</body>
+</html>

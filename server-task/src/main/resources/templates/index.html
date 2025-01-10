@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket and Embedded C++ Editor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1>WebSocket Broadcast Demo with C++ Editor</h1>
+
+<!-- WebSocket Messages Section -->
+<div>
+    <input type="text" id="messageInput" placeholder="Nhập tin nhắn">
+    <button onclick="sendMessage()">Gửi tin nhắn</button>
+</div>
+<div>
+    <h2>Messages:</h2>
+    <ul id="messages"></ul>
+</div>
+
+<!-- Embedded C++ Editor -->
+<div>
+    <h2>Embedded C++ Editor</h2>
+    <iframe
+            id="oc-editor"
+            frameBorder="0"
+            height="450px"
+            src="https://onecompiler.com/embed/cpp?codeChangeEvent=true&listenToEvents=true"
+            width="100%">
+    </iframe>
+    <button onclick="updateCode()">Update Code</button>
+    <button onclick="runCode()">Run Code</button>
+</div>
+
+<script>
+    const socket = new WebSocket("ws://localhost:8080/ws");
+
+        socket.onopen = () => {
+            console.log("Connected to WebSocket server");
+        };
+
+        socket.onmessage = (event) => {
+            console.log("Received from server:", event.data);
+        };
+
+        socket.onclose = () => {
+            console.log("Disconnected from WebSocket server");
+        };
+
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+            socket.send(message);
+        }
+
+    window.onmessage = function (e) {
+        if (e.data && e.data.language) {
+            console.log("Received from editor:", e.data);
+            // Handle incoming code changes or events from the editor
+        }
+    };
+
+    function updateCode(sub) {
+    const iFrame = document.getElementById('oc-editor');
+    iFrame.contentWindow.postMessage({
+        eventType: 'populateCode',
+        language: sub.language,
+        files: [
+            {
+                "name": "Main.cpp",
+                "content": sub.source_code
+            }
+        ]
+    }, "*");
+}
+
+    // Run the code in the embedded C++ editor
+    function runCode() {
+        const iFrame = document.getElementById('oc-editor');
+        iFrame.contentWindow.postMessage({
+            eventType: 'triggerRun'
+        }, "*");
+    }
+
+    // Connect WebSocket on page load
+    connect();
+</script>
+</body>
+</html>

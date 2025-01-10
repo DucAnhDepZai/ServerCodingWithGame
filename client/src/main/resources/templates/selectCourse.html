@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Course Selection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/style.css}">
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+    }
+    .container_course {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+        margin-top: 120px;
+        justify-content: center;
+    }
+    .course-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+    .course-card:hover {
+        transform: translateY(-10px);
+    }
+    .course-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+    .course-card .content {
+        padding: 15px;
+    }
+    .course-card .content h3 {
+        font-size: 1.2rem;
+        margin: 0 0 10px;
+    }
+    .course-card .content p {
+        font-size: 0.9rem;
+        margin: 0 0 10px;
+        color: #666;
+    }
+    .course-card .content .price {
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    .course-card .content .price .original-price {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.9rem;
+        margin-right: 10px;
+    }
+    .course-card .content .rating {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #ff9900;
+    }
+    .course-card .content .rating i {
+        margin-right: 5px;
+    }
+    .badge {
+        background-color: #ff5722;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+  </style>
+</head>
+<body>
+<header class="navbar navbar-expand-lg navbar-dark bg-dark py-2 fixed-top">
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img th:src="@{/logo.png}" alt="Logo" width="50" height="50" class="me-2">
+      <span class="fw-bold text-warning">COURSE SELECTOR</span>
+    </a>
+
+    <!-- Toggler for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Log In and Sign Up Buttons -->
+      <div class="d-flex ms-auto">
+        <a th:href="@{/signIn}" class="btn btn-warning btn-sm">LOG OUT</a>
+      </div>
+
+      <!-- Dropdown Menu -->
+      <div class="dropdown ms-3">
+        <button class="btn btn-outline-light dropdown-toggle btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+          MENU
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+          <li><a class="dropdown-item" href="#">LANGUAGE</a></li>
+          <li><a class="dropdown-item" href="#">HELP CENTER</a></li>
+          <li><a class="dropdown-item" href="#">ABOUT</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="container_course">
+  <div th:each="course : ${courses}" class="course-card">
+    <a th:href="@{'/courses/' + ${course.id}}" style="text-decoration: none; color: inherit;">
+      <img th:src="${course.image_url}" alt="Course Image">
+      <div class="content">
+        <h3 th:text="${course.name}"></h3>
+        <p th:text="${course.description}"></p>
+        <div th:if="${course.is_popular}" class="badge">Hot</div>
+        <div class="price">
+          <span th:if="${course.original_price == 0}" th:text="'Miễn phí'"></span>
+          <span th:if="${course.original_price != 0}" th:text="${course.original_price} + ' VND'"></span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>

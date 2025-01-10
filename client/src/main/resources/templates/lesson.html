@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodingWithGame</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/style.css}">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 70px;
+            height: calc(100vh - 120px); /* Full height minus header and footer */
+        }
+
+        #unity-container {
+            width: 50%;
+            height: 100%;
+            background-color: #231F20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #editor-section {
+            width: 50%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+            width: 50%;
+        }
+
+        #loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Header -->
+<header class="navbar navbar-expand-lg navbar-dark bg-dark py-2 fixed-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img th:src="@{/logo.png}" alt="Logo" width="50" height="50" class="me-2">
+            <span class="fw-bold text-warning">CODING WITH GAME</span>
+        </a>
+        <div class="d-flex justify-content-end" style="width: 40%; padding: 10px;">
+            <a class="btn btn-primary" th:href="'/continue-course/' + ${lesson.id_course}" style="background-color: #4de02f; border-color: #0056b3;">Select Lesson</a>
+        </div>
+    </div>
+</header>
+
+<!-- Main content -->
+<div class="container-fluid">
+    <div id="unity-container">
+        <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+        <div id="unity-warning"></div>
+        <div id="unity-footer">
+            <div id="unity-webgl-logo"></div>
+            <div id="unity-fullscreen-button"></div>
+            <div id="unity-build-title">GamCoder</div>
+        </div>
+    </div>
+
+    <!-- Code Editor Section -->
+    <div id="editor-section">
+        <iframe frameborder="0" id="oc-editor" width="100%" height="450px"
+                th:src="'https://onecompiler.com/embed/' + ${lesson.language} + '?codeChangeEvent=true&listenToEvents=true&hideNew=true&hideRun=true&hideResult=true&theme=dark&hideTitle=true'"
+                onload="getFirstCodeToEditor()"></iframe>
+        <textarea class="form-control" id="parent-code-capture" style="display: none;"></textarea>
+        <button type="button" id="run-code-btn" onclick="triggerRun()" class="btn btn-primary">Run Code</button>
+
+    </div>
+    <div id="loading-spinner" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    Coding With Game
+</footer>
+
+    <script th:inline="javascript">
+        let lesson = /*[[${lesson}]]*/ {};
+        var unityInstance;
+        window.onmessage = function (e) {
+            if (e.data && e.data.language) {
+                document.getElementById('parent-code-capture').value = JSON.stringify(e.data, null, 2);
+                console.log(e.data);
+            }
+
+        };
+        function completeLesson(){
+            console.log('Lesson complete!');
+            updateResource(lesson.id)
+        }
+        function next() {
+            window.location.href = '/lesson/next';
+        }
+        function replay() {
+             console.log('replay lesson');
+        }
+
+        function updateResource(id) {
+            const url = `/update/${id}`;
+
+            fetch(url, {
+                method: 'PUT', // Phương thức HTTP PUT
+                headers: {
+                    'Content-Type': 'application/json' // Định dạng JSON cho request body
+                },
+
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to update resource with ID ${id}. Status: ${response.status}`);
+                    }
+                    return response.json(); // Nếu server trả về JSON
+                })
+                .then(result => {
+
+                })
+                .catch(error => {
+
+                });
+        }
+
+
+        function triggerRun() {
+            const runCodeBtn = document.getElementById('run-code-btn');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            runCodeBtn.disabled = true;
+            loadingSpinner.style.display = 'block';
+            var iFrame = document.getElementById('oc-editor');
+            let editorCode = document.getElementById('parent-code-capture').value;
+            const lessonId = [[${lesson.id}]];
+            const url = '/processRunCode/' + lessonId;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: editorCode
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    let newCode = JSON.stringify(data);
+                    let newCodeObj;
+                    try {
+                        newCodeObj = JSON.parse(newCode);
+                    } catch (e) {
+                        alert('Invalid JSON format');
+                        return;
+                    }
+                    if (newCodeObj.result.success) {
+                        unityInstance.SendMessage('GameManager', 'SetOutput', newCodeObj.result.output);
+                    }
+                    else {
+                        unityInstance.SendMessage('GameManager', 'SetOutput', newCodeObj.result.output);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending code to /processRunCode:', error);
+                })
+                .finally(() => {
+                    // Tắt loading spinner và bật lại nút
+                    runCodeBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                });
+        }
+
+
+        function getFirstCodeToEditor() {
+            fetch('/processGetCode')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    let currentCode = JSON.stringify(data);
+                    document.getElementById('parent-code-capture').value = currentCode;
+
+                    let currentCodeObj;
+                    try {
+                        currentCodeObj = JSON.parse(currentCode);
+                    } catch (e) {
+                        alert('Invalid JSON format');
+                        return;
+                    }
+                    if (!currentCodeObj.language) { alert('Language missing'); return; }
+                    if (!currentCodeObj.files || currentCodeObj.files.length === 0) { alert('Files missing'); return; }
+                    var iFrame = document.getElementById('oc-editor');
+                    iFrame.contentWindow.postMessage({
+                        eventType: 'populateCode',
+                        language: currentCodeObj.language,
+                        files: currentCodeObj.files,
+                        stdin: currentCodeObj.stdin,
+                        result: currentCodeObj.result
+                    }, "*");
+                })
+                .catch(error => {
+                    console.error('Error fetching JSON from /processGetCode:', error);
+                    alert('Failed to retrieve JSON data from the server');
+                });
+        }
+
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+        var warningBanner = document.querySelector("#unity-warning");
+
+        function unityShowBanner(msg, type) {
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(() => { warningBanner.removeChild(div); updateBannerVisibility(); }, 5000);
+            }
+            updateBannerVisibility();
+        }
+
+        var buildUrl = "/Build";
+        var loaderUrl = buildUrl + "/static.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/static.data",
+            frameworkUrl: buildUrl + "/static.framework.js",
+            codeUrl: buildUrl + "/static.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "PTITer",
+            productName: "GamCoder",
+            productVersion: "1.0",
+            showBanner: unityShowBanner,
+        };
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+            container.className = "unity-mobile";
+            canvas.className = "unity-mobile";
+        } else {
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+        }
+
+        loadingBar.style.display = "block";
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                progressBarFull.style.width = 100 * progress + "%";
+            }).then((instance) => {
+                unityInstance = instance;
+                loadingBar.style.display = "none";
+                fullscreenButton.onclick = () => instance.SetFullscreen(1);
+                console.log(lesson);
+                const message = `${lesson.id};${lesson.gameLesson.lesson_url}`;
+                console.log(message);
+                unityInstance.SendMessage('LessonController', 'LoadLesson', message);
+            }).catch((message) => alert(message));
+        };
+
+        document.body.appendChild(script);
+    </script>
+
+</body>
+
+</html>
